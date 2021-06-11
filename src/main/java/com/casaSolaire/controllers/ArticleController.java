@@ -5,11 +5,13 @@ import com.casaSolaire.dto.ArticleDto;
 import com.casaSolaire.services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
+@CrossOrigin
 public class ArticleController implements ArticleApi {
 
     private final ArticleService articleService;
@@ -22,6 +24,12 @@ public class ArticleController implements ArticleApi {
 
     @Override
     public ResponseEntity<ArticleDto> save(ArticleDto articleDto) {
+        return ResponseEntity.ok(articleService.save(articleDto));
+    }
+
+    @Override
+    public ResponseEntity<ArticleDto> update(Long id, ArticleDto articleDto) {
+        articleDto.setId(id);
         return ResponseEntity.ok(articleService.save(articleDto));
     }
 

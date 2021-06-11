@@ -1,15 +1,14 @@
 package com.casaSolaire.services.impl;
 
 import com.casaSolaire.dto.ArticleDto;
-import com.casaSolaire.dto.CategoryDto;
 import com.casaSolaire.exceptions.ResourceNotFoundException;
 import com.casaSolaire.models.Article;
-import com.casaSolaire.models.Category;
 import com.casaSolaire.repository.ArticleRepository;
 import com.casaSolaire.services.ArticleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -21,13 +20,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
 
-    @Autowired
     private final ArticleRepository articleRepository;
 
+    @Autowired
     public ArticleServiceImpl(ArticleRepository articleRepository) {
         this.articleRepository = articleRepository;
     }
-
 
     @Override
     public ArticleDto save(ArticleDto articleDto) {
@@ -37,6 +35,36 @@ public class ArticleServiceImpl implements ArticleService {
                 )
         );
 
+    }
+
+    @Override
+    public ArticleDto update(Long id, ArticleDto articleDto) {
+        if (!articleRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Article not found");
+        }
+
+        Optional<Article> article = articleRepository.findById(id);
+
+        if (!article.isPresent()) {
+            throw new ResourceNotFoundException("Article not found");
+        }
+
+        ArticleDto articleDtoResult = ArticleDto.fromEntityToDto(article.get());
+        articleDtoResult.setReference(articleDto.getReference());
+        articleDtoResult.setDesignation(articleDto.getDesignation());
+        articleDtoResult.setPrice(articleDto.getPrice());
+        articleDtoResult.setCurrentPrice(articleDto.getCurrentPrice());
+        articleDtoResult.setQuantity(articleDto.getQuantity());
+        articleDtoResult.setPhoto(articleDto.getPhoto());
+        articleDtoResult.setPromo(articleDto.isPromo());
+        articleDtoResult.setDescription(articleDto.getDescription());
+        articleDtoResult.setScategoryDto(articleDto.getScategoryDto());
+
+        return ArticleDto.fromEntityToDto(
+                articleRepository.save(
+                        ArticleDto.fromDtoToEntity(articleDtoResult)
+                )
+        );
     }
 
     @Override
@@ -52,6 +80,21 @@ public class ArticleServiceImpl implements ArticleService {
                 new ResourceNotFoundException(
                         "Not article with l'Id = " + id + "n'a été found")
         );
+    }
+
+    @Override
+    public ArticleDto findByReference(String reference) {
+        if (!StringUtils.hasLength(reference)) {
+            log.error("Article REFERENCE is null");
+        }
+
+        Optional<Article> article = articleRepository.findArticleByReference(reference);
+
+        return Optional.of(ArticleDto.fromEntityToDto(article.get())).orElseThrow(() ->
+                new ResourceNotFoundException(
+                        "Aucnun article avec l'Id = " + reference + "n'a été trouvé")
+        );
+
     }
 
     @Override

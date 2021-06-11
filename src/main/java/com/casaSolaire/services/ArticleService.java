@@ -1,7 +1,6 @@
 package com.casaSolaire.services;
 
 import com.casaSolaire.dto.ArticleDto;
-import com.casaSolaire.dto.CategoryDto;
 
 import java.util.List;
 
@@ -9,7 +8,11 @@ public interface ArticleService {
 
     ArticleDto save(ArticleDto articleDto);
 
+    ArticleDto update(Long id, ArticleDto articleDto);
+
     ArticleDto findById(Long id);
+
+    ArticleDto findByReference(String reference);
 
     List<ArticleDto> findAll();
 
